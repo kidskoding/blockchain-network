@@ -1,5 +1,7 @@
 mod block;
+mod blockchain;
+mod tests;
 
 fn main() {
-    println!("Hello, world!");
+    println!("A Blockchain implementation!");
 }

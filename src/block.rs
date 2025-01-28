@@ -1,6 +1,5 @@
+use std::rc::Rc;
 use std::time::{SystemTime, UNIX_EPOCH};
-
-use sha2::digest::{DynDigest, Update};
 use sha2::{Digest, Sha256};
 
 /// A `Block` stores a transaction, a digital operation
@@ -18,11 +17,14 @@ pub struct Block {
     
     /// The information being stored in the `Block` (e.g. a transaction)
     pub data: String,
+
+    /// A reference to the previous `Block`'s hash in a blockchain, or
+    /// `None` if there isn't any 
+    pub previous_hash: Option<Rc<str>>,
     
-    /// A reference (hash) to the previous `Block` in a blockchain
-    pub previous_hash: String,
-    
-    /// The hash of the current `Block`, which is calculated from the `Block`'s contents
+    /// The hash of the current `Block` instance, which is calculated 
+    /// by using a cryptographic hashing algorithm, like 
+    /// [SHA-256](https://securiti.ai/glossary/secure-hash-algorithm-sha-256-bit/) 
     pub hash: String,
 }
 impl Block {
@@ -32,19 +34,20 @@ impl Block {
     /// # Parameters
     /// - `index` - The position the block should be in a blockchain
     /// - `data` - The information that the `Block` should store
-    /// - `previous_hash` - The reference/hash to the previous block in a blockchain
+    /// - `previous_hash` - The reference/hash to the previous block in a blockchain, 
+    /// or `None` if there isn't one
     /// 
     /// # Returns
     /// - A newly constructed `Block` instance that contains its 
     /// `index`, `timestamp`, `data`, `previous_hash`, and `hash`
-    pub fn new(index: u32, data: String, previous_hash: String) -> Self {
+    pub fn new(index: u32, data: String, previous_hash: Option<Rc<str>>) -> Self {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards")
             .as_secs();
         
-        let block_data = format!("{}{}{}{}", index, timestamp, data, previous_hash);
-        let hash = Block::calculate_hash(&block_data);
+        let block_data = format!("{}{}{}{:?}", index, timestamp, data, previous_hash);
+        let hash = Block::calculate_hash(block_data);
         
         Block {
             index,
@@ -63,7 +66,7 @@ impl Block {
     /// 
     /// # Returns
     /// - A `String` of the hash's current `Block` instance
-    pub fn calculate_hash(data: &str) -> String {
+    pub fn calculate_hash(data: String) -> String {
         let mut hasher = Sha256::new();
         hasher.update(data);
         let result = hasher.finalize();
