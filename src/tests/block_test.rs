@@ -6,6 +6,8 @@ mod block_test {
     fn test_create_block() {
         let mut blockchain = Blockchain::new();
         blockchain.add_block(String::from("Transaction #1"));
+        
+        assert_eq!(blockchain.is_valid(), Ok(true));
         assert_eq!(blockchain.chain.len(), 2);
     }
 }

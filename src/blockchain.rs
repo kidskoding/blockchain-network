@@ -39,7 +39,7 @@ impl Blockchain {
     /// # Returns
     /// - A `bool` based on whether the hashes of all consecutive
     /// `Block`s match current. `true` if so, `false` otherwise
-    pub fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> Result<bool, &str> {
         for i in 1..self.chain.len() {
             let current = &self.chain[i];
             let previous = &self.chain[i - 1];
@@ -49,11 +49,11 @@ impl Blockchain {
                 current.index, current.timestamp, current.data, current.previous_hash
             );
             if current.hash != Block::calculate_hash(format_str)
-                || current.previous_hash != Some(Rc::from(previous.hash.as_str()))
-            {
-                return false;
+                || current.previous_hash != Some(Rc::from(previous.hash.as_str())) {
+                return Err("Blockchain is invalid! \
+                    Blocks were moved and a hash mismatch has occurred")
             }
         }
-        true
+        Ok(true)
     }
 }
