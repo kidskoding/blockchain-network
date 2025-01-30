@@ -47,8 +47,8 @@ impl Block {
     /// or `None` if there isn't one
     ///
     /// # Returns
-    /// - A newly constructed `Block` instance that contains its
-    /// `index`, `timestamp`, `data`, `previous_hash`, and `hash`
+    /// - `Self` - A newly constructed current `Block` instance that contains an
+    ///   `index`, `timestamp`, `data`, `previous_hash`, and `hash`
     pub fn new(index: u32, transaction: Transaction, previous_hash: Option<Rc<str>>) -> Self {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -69,10 +69,10 @@ impl Block {
     /// hash of the `Block`'s contents
     ///
     /// # Parameters
-    /// - `transaction` - A `Transaction` reference of this `Block`'s transaction
+    /// - `block` - A `Block` reference used to calculate its `hash`
     ///
     /// # Returns
-    /// - A `String` of the hash's current `Block` instance
+    /// - `String` - A `String` representation containing the `hash` of the current `Block` instance
     pub fn calculate_hash(block: &Block) -> String {
         let mut hasher = Sha256::new();
         hasher.update(format!("{:?}{:?}{:?}{:?}{:?}", 

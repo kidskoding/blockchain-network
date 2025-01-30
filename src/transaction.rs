@@ -32,13 +32,13 @@ impl Transaction {
     /// Creates a new `Transaction`.
     ///
     /// # Parameters
-    /// - `sender`: The sender of this `Transaction`.
-    /// - `recipient`: The recipient of this `Transaction`.
-    /// - `amount`: The amount of this `Transaction`.
-    /// - `signature`: The digital signature of this `Transaction`.
+    /// - `sender` - The sender of this `Transaction`.
+    /// - `recipient` - The recipient of this `Transaction`.
+    /// - `amount` - The amount of this `Transaction`.
+    /// - `signature` - The digital signature of this `Transaction`.
     ///
     /// # Returns
-    /// A new `Transaction` instance with the current timestamp.
+    /// - `Self` - A new current instance of `Transaction` with the current timestamp.
     pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64, signature: String) -> Self {
         Transaction {
             sender,
@@ -77,7 +77,7 @@ impl Transaction {
     ///    of the transaction
     /// 
     /// # Returns
-    /// - A `bool` containing whether the signature could be verified
+    /// - `bool` - A boolean value containing whether the signature could be verified
     pub fn verify_signature(&self, public_key: &[u8]) -> bool {
         let message = format!("{:?}{:?}{:?}{:?}",
                               self.sender,
