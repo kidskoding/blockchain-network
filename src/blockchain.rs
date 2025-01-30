@@ -3,6 +3,7 @@ use ring::rand::SystemRandom;
 use ring::signature::{Ed25519KeyPair, KeyPair};
 use crate::transaction::Transaction;
 use crate::block::Block;
+use crate::miner::Miner;
 
 /// A `Blockchain` is a sequence or collection of `Block`s that securely records
 /// transactions, by using cryptographic hashing, to be stored in `Block`s
@@ -35,7 +36,7 @@ impl Blockchain {
             ), 
             None
         );
-        genesis_block.proof_of_work(difficulty);
+        Miner::proof_of_work(&mut genesis_block, difficulty);
         Blockchain {
             chain: vec![genesis_block],
             difficulty
@@ -53,8 +54,6 @@ impl Blockchain {
     ///    successfully added or not. If the signature verification fails, an `Err(&str)`
     ///    is thrown
     pub fn add_block(&mut self, mut new_block: Block) -> Result<(), &str> {
-        new_block.proof_of_work(self.difficulty);
-
         let rng = SystemRandom::new();
         let key_pair = Ed25519KeyPair::generate_pkcs8(&rng).unwrap();
         let key_pair = Ed25519KeyPair::from_pkcs8(key_pair.as_ref()).unwrap();

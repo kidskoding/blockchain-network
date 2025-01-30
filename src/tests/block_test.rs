@@ -2,6 +2,7 @@
 mod block_test {
     use crate::block::Block;
     use crate::blockchain::Blockchain;
+    use crate::miner::Miner;
     use crate::transaction::Transaction;
 
     #[test]
@@ -44,7 +45,7 @@ mod block_test {
         );
         let mut block = Block::new(1, transaction, None);
         let difficulty = 4;
-        block.proof_of_work(difficulty);
+        Miner::proof_of_work(&mut block, difficulty);
         let target = "0".repeat(difficulty);
 
         assert!(
