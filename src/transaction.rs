@@ -1,12 +1,13 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Represents a transaction in a `Blockchain`
-struct Transaction {
-    /// The sender of this `Transaction`
-    sender: String,
+#[derive(Debug)]
+pub struct Transaction {
+    /// The sender of this `Transaction`, or `None` if there isn't one
+    sender: Option<String>,
     
-    /// The recipient of this `Transaction`
-    recipient: String,
+    /// The recipient of this `Transaction`, or `None` if there isn't one
+    recipient: Option<String>,
     
     /// The amount of this `Transaction`
     amount: f64,
@@ -37,7 +38,7 @@ impl Transaction {
     ///
     /// # Returns
     /// A new `Transaction` instance with the current timestamp.
-    pub fn new(sender: String, recipient: String, amount: f64, signature: String) -> Self {
+    pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64, signature: String) -> Self {
         Transaction {
             sender,
             recipient,

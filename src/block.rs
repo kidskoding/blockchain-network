@@ -1,6 +1,7 @@
 use sha2::{Digest, Sha256};
 use std::rc::Rc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use crate::transaction::Transaction;
 
 /// A `Block` stores a transaction, a digital operation
 /// that represents the transfer or exchange of information, assets,
@@ -16,8 +17,8 @@ pub struct Block {
     /// The time, in seconds, the `Block` was created
     pub timestamp: u64,
 
-    /// The information being stored in the `Block` (e.g. a transaction)
-    pub data: String,
+    /// The transaction being stored in this `Block`
+    pub transaction: Transaction,
 
     /// A reference to the previous `Block`'s hash in a blockchain, or
     /// `None` if there isn't any
@@ -48,7 +49,7 @@ impl Block {
     /// # Returns
     /// - A newly constructed `Block` instance that contains its
     /// `index`, `timestamp`, `data`, `previous_hash`, and `hash`
-    pub fn new(index: u32, data: String, previous_hash: Option<Rc<str>>) -> Self {
+    pub fn new(index: u32, transaction: Transaction, previous_hash: Option<Rc<str>>) -> Self {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards")
@@ -57,7 +58,7 @@ impl Block {
         Block {
             index,
             timestamp,
-            data,
+            transaction,
             previous_hash,
             hash: String::new(),
             nonce: 0,
@@ -68,15 +69,19 @@ impl Block {
     /// hash of the `Block`'s contents
     ///
     /// # Parameters
-    /// - `data` - A `&str` reference of the `Block`'s data
+    /// - `transaction` - A `Transaction` reference of this `Block`'s transaction
     ///
     /// # Returns
     /// - A `String` of the hash's current `Block` instance
-    pub fn calculate_hash(data: &String) -> String {
+    pub fn calculate_hash(block: &Block) -> String {
         let mut hasher = Sha256::new();
-        hasher.update(data);
-        let result = hasher.finalize();
-        format!("{:x}", result)
+        hasher.update(format!("{:?}{:?}{:?}{:?}{:?}", 
+                              block.index,
+                              block.timestamp,
+                              block.transaction,
+                              block.previous_hash, 
+                              block.nonce));
+        format!("{:x}", hasher.finalize())
     }
     
     /// An implementation of the 
@@ -101,12 +106,8 @@ impl Block {
     pub fn proof_of_work(&mut self, difficulty: usize) {
         let target = "0".repeat(difficulty);
         while !self.hash.starts_with(&target) {
-            let block_data = format!(
-                "{}{}{}{:?}{:x}",
-                self.index, self.timestamp, self.data, self.previous_hash, self.nonce
-            );
-            self.hash = Block::calculate_hash(&block_data);
             self.nonce += 1;
+            self.hash = Block::calculate_hash(self);
         }
     }
 }

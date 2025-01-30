@@ -1,5 +1,6 @@
 use crate::block::Block;
 use std::rc::Rc;
+use crate::transaction::Transaction;
 
 /// A `Blockchain` is a sequence or collection of `Block`s that securely records
 /// transactions, by using cryptographic hashing, to be stored in `Block`s
@@ -23,7 +24,16 @@ impl Blockchain {
     /// # Returns
     /// - The current `Blockchain` instance - `Self`
     pub fn new(difficulty: usize) -> Self {
-        let mut genesis_block = Block::new(0, String::from("Genesis Block"), None);
+        let mut genesis_block = Block::new(
+            0, 
+            Transaction::new(
+                None,
+                None,
+                0.0,
+                String::from("genesis_signature"),
+            ), 
+            None
+        );
         genesis_block.proof_of_work(difficulty);
         Blockchain {
             chain: vec![genesis_block],
