@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// that represents the transfer or exchange of information, assets,
 /// or value between participants on the network
 ///
-/// The transcation includes several important components, including the
+/// The transaction includes several important components, including the
 /// `index`, `timestamp`, `data`, `previous_hash`, and `hash`
 #[allow(dead_code)]
 pub struct Block {
@@ -28,7 +28,7 @@ pub struct Block {
     /// [SHA-256](https://securiti.ai/glossary/secure-hash-algorithm-sha-256-bit/)
     pub hash: String,
     
-    /// **number used once** - a random or incrementing 32 bit hexadecimal number used in
+    /// **number used once** - a random or incrementing 32-bit hexadecimal number used in
     /// [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp) mining
     ///
     /// In a `Blockchain`, it serves as a counter that is adjusted until
@@ -83,7 +83,7 @@ impl Block {
     /// [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp) 
     /// algorithm
     /// 
-    /// [Proof of Work](https://www.investopedia.com/terms/p/proof-work.asp) 
+    /// [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp) 
     /// is a process/algorithm used to demonstrate/prove
     /// that a `Blockchain` did the necessary computing work
     /// required to add a new `Block` to the chain
@@ -102,7 +102,7 @@ impl Block {
         let target = "0".repeat(difficulty);
         while !self.hash.starts_with(&target) {
             let block_data = format!(
-                "{}{}{}{:?}{}",
+                "{}{}{}{:?}{:x}",
                 self.index, self.timestamp, self.data, self.previous_hash, self.nonce
             );
             self.hash = Block::calculate_hash(&block_data);
