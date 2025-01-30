@@ -10,7 +10,7 @@ pub struct Transaction {
     /// The recipient of this `Transaction`, or `None` if there isn't one
     pub recipient: Option<String>,
     
-    /// The amount of this `Transaction`
+    /// The amount of this `Transaction`, usually in the form of cryptocurrency or crypto
     pub amount: f64,
     
     /// The timestamp when this `Transaction` was created 
