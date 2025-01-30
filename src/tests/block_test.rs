@@ -18,7 +18,7 @@ mod block_test {
             transaction1,
             blockchain.get_latest_block_hash(),
         );
-        blockchain.add_block(block);
+        blockchain.add_block(block).unwrap();
 
         let transaction2 = Transaction::new(
             Some(String::from("Bob")),
@@ -31,7 +31,7 @@ mod block_test {
             transaction2,
             blockchain.get_latest_block_hash(),
         );
-        blockchain.add_block(block2);
+        blockchain.add_block(block2).unwrap();
 
         assert_eq!(blockchain.is_valid(), Ok(true));
         assert_eq!(blockchain.chain.len(), 3);

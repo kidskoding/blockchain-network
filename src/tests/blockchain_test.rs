@@ -15,7 +15,7 @@ mod blockchain_test {
                 format!("signature#{x}"),
             );
             let block = Block::new(x, transaction, blockchain.get_latest_block_hash());
-            blockchain.add_block(block);
+            blockchain.add_block(block).unwrap();
         }
 
         blockchain
@@ -44,7 +44,7 @@ mod blockchain_test {
             String::from("signature1"),
         );
         let block = Block::new(1, transaction1, None);
-        blockchain.add_block(block);
+        blockchain.add_block(block).unwrap();
 
         let transaction2 = Transaction::new(
             Some(String::from("Bob")),
@@ -53,7 +53,7 @@ mod blockchain_test {
             String::from("signature2"),
         );
         let block2 = Block::new(2, transaction2, blockchain.get_latest_block_hash());
-        blockchain.add_block(block2);
+        blockchain.add_block(block2).unwrap();
 
         let tampered_block = &mut blockchain.chain[1];
         tampered_block.transaction = Transaction::new(
@@ -78,7 +78,7 @@ mod blockchain_test {
             String::from("signature1"),
         );
         let block = Block::new(1, transaction1, None);
-        blockchain.add_block(block);
+        blockchain.add_block(block).unwrap();
 
         let transaction2 = Transaction::new(
             Some(String::from("Bob")),
@@ -87,7 +87,7 @@ mod blockchain_test {
             String::from("signature2"),
         );
         let block2 = Block::new(2, transaction2, blockchain.get_latest_block_hash());
-        blockchain.add_block(block2);
+        blockchain.add_block(block2).unwrap();
 
         let transaction3 = Transaction::new(
             Some(String::from("Charlie")),
@@ -96,7 +96,7 @@ mod blockchain_test {
             String::from("signature3"),
         );
         let block3 = Block::new(3, transaction3, blockchain.get_latest_block_hash());
-        blockchain.add_block(block3);
+        blockchain.add_block(block3).unwrap();
 
         assert_eq!(blockchain.chain[1].previous_hash, None);
         assert_eq!(blockchain.chain[2].previous_hash,

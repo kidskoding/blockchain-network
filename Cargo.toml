@@ -7,3 +7,5 @@ license = "MIT"
 
 [dependencies]
 sha2 = "0.10.8"
+ring = "0.17.8"
+base64 = "0.22.1"

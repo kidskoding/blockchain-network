@@ -1,6 +1,8 @@
-use crate::block::Block;
 use std::rc::Rc;
+use ring::rand::SystemRandom;
+use ring::signature::{Ed25519KeyPair, KeyPair};
 use crate::transaction::Transaction;
+use crate::block::Block;
 
 /// A `Blockchain` is a sequence or collection of `Block`s that securely records
 /// transactions, by using cryptographic hashing, to be stored in `Block`s
@@ -22,7 +24,7 @@ impl Blockchain {
     /// the first `Block`, to this instance
     ///
     /// # Returns
-    /// - The current `Blockchain` instance - `Self`
+    /// - `Self` - The current `Blockchain` instance
     pub fn new(difficulty: usize) -> Self {
         let mut genesis_block = Block::new(
             0, 
@@ -46,11 +48,33 @@ impl Blockchain {
     /// # Parameters
     /// - `new_block` - A `Block` instance to be added to the current
     ///   `Blockchain` instance
-    pub fn add_block(&mut self, mut new_block: Block) {
+    /// 
+    /// # Returns
+    /// - `Result<(), &str>` - A result that contains whether the block was
+    ///    successfully added or not. If the signature verification fails, an `Err(&str)`
+    ///    is thrown
+    pub fn add_block(&mut self, mut new_block: Block) -> Result<(), &str> {
         new_block.proof_of_work(self.difficulty);
-        self.chain.push(new_block);
+
+        let rng = SystemRandom::new();
+        let key_pair = Ed25519KeyPair::generate_pkcs8(&rng).unwrap();
+        let key_pair = Ed25519KeyPair::from_pkcs8(key_pair.as_ref()).unwrap();
+        
+        new_block.transaction.sign(&key_pair);
+        let public_key = key_pair.public_key().as_ref();
+        if new_block.transaction.verify_signature(public_key) {
+            self.chain.push(new_block);
+            Ok(())
+        } else {
+            Err("Could not verify the signature of the block's transaction!")
+        }
     }
     
+    /// Gets the hash value for the most recent `Block` added to this `Blockchain`
+    /// 
+    /// # Returns
+    /// - `Option<Rc<str>>` - An optional reference count value, containing the hash of the most recent `Block`
+    ///   added to this `Blockchain`
     pub fn get_latest_block_hash(&self) -> Option<Rc<str>> {
         self.chain.last().map(|block| Rc::from(block.hash.as_str()))
     }
@@ -59,8 +83,8 @@ impl Blockchain {
     /// that the hashes of the consecutive `Block`s match
     ///
     /// # Returns
-    /// - A `bool` based on whether the hashes of all consecutive
-    /// `Block`s match current. `true` if so, `false` otherwise
+    /// - `Result<bool, &str>` - A result based on whether the hashes of all consecutive
+    ///   `Block`s match that of the current `Block`. `true` if so, an `Err(&str)` otherwise
      pub fn is_valid(&self) -> Result<bool, &str> {
         for i in 1..self.chain.len() {
             let current = &self.chain[i];
