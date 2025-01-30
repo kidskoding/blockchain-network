@@ -1,6 +1,6 @@
 [package]
 name = "blockchain-prototype"
-authors = ["kidskoding (Anirudh Konidala)"]
+authors = ["Anirudh Konidala"]
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
