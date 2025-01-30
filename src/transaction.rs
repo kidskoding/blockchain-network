@@ -17,7 +17,7 @@ pub struct Transaction {
     pub timestamp: u64,
     
     /// The digital signature of this `Transaction`
-    pub signature: String,
+    pub signature: Vec<u8>,
     
     /// An optional unique identifier for this `Transaction`
     pub transaction_id: Option<String>,
@@ -39,7 +39,7 @@ impl Transaction {
     ///
     /// # Returns
     /// - `Self` - A new current instance of `Transaction` with the current timestamp.
-    pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64, signature: String) -> Self {
+    pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64) -> Self {
         Transaction {
             sender,
             recipient,
@@ -48,7 +48,7 @@ impl Transaction {
                 .duration_since(UNIX_EPOCH)
                 .expect("Time went backwards")
                 .as_secs(),
-            signature,
+            signature: Vec::new(),
             transaction_id: None,
             fee: None,
             metadata: None
@@ -67,7 +67,7 @@ impl Transaction {
             self.timestamp,
         );
         let sig = key_pair.sign(message.as_bytes());
-        self.signature = base64::encode(sig.as_ref());
+        self.signature = sig.as_ref().to_vec();
     }
     
     /// Verifies the signature of this `Transaction` by using the miner's `public_key`
@@ -84,8 +84,7 @@ impl Transaction {
                               self.recipient,
                               self.amount,
                               self.timestamp);
-        let sig = base64::decode(&self.signature).expect("Invalid base64 signature");
         let public_key = UnparsedPublicKey::new(&ED25519, public_key);
-        public_key.verify(message.as_bytes(), &sig).is_ok()
+        public_key.verify(message.as_bytes(), &self.signature).is_ok()
     }
 }

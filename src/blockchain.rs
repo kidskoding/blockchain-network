@@ -32,7 +32,6 @@ impl Blockchain {
                 None,
                 None,
                 0.0,
-                String::from("genesis_signature"),
             ), 
             None
         );

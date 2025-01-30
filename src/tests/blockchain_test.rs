@@ -12,7 +12,6 @@ mod blockchain_test {
                 Some(format!("Sender #{x}")),
                 Some(format!("Recipient #{x}")),
                 x as f64 * 10.0,
-                format!("signature#{x}"),
             );
             let block = Block::new(x, transaction, blockchain.get_latest_block_hash());
             blockchain.add_block(block).unwrap();
@@ -41,7 +40,6 @@ mod blockchain_test {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::from("signature1"),
         );
         let block = Block::new(1, transaction1, None);
         blockchain.add_block(block).unwrap();
@@ -50,7 +48,6 @@ mod blockchain_test {
             Some(String::from("Bob")),
             Some(String::from("Charlie")),
             30.0,
-            String::from("signature2"),
         );
         let block2 = Block::new(2, transaction2, blockchain.get_latest_block_hash());
         blockchain.add_block(block2).unwrap();
@@ -60,7 +57,6 @@ mod blockchain_test {
             Some(String::from("Tampered")),
             Some(String::from("Transaction")),
             0.0,
-            String::from("tampered_signature"),
         );
 
         let result = blockchain.is_valid();
@@ -75,7 +71,6 @@ mod blockchain_test {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::from("signature1"),
         );
         let block = Block::new(1, transaction1, None);
         blockchain.add_block(block).unwrap();
@@ -84,7 +79,6 @@ mod blockchain_test {
             Some(String::from("Bob")),
             Some(String::from("Charlie")),
             30.0,
-            String::from("signature2"),
         );
         let block2 = Block::new(2, transaction2, blockchain.get_latest_block_hash());
         blockchain.add_block(block2).unwrap();
@@ -93,7 +87,6 @@ mod blockchain_test {
             Some(String::from("Charlie")),
             Some(String::from("Dave")),
             20.0,
-            String::from("signature3"),
         );
         let block3 = Block::new(3, transaction3, blockchain.get_latest_block_hash());
         blockchain.add_block(block3).unwrap();

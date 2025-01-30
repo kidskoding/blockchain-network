@@ -14,7 +14,6 @@ mod transaction_tests {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::new(),
         );
         transaction.sign(&key_pair);
 
@@ -32,7 +31,6 @@ mod transaction_tests {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::new(),
         );
         transaction.sign(&key_pair);
 

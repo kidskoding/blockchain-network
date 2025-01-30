@@ -11,7 +11,6 @@ mod block_test {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::from("signature1"),
         );
         let block = Block::new(
             1,
@@ -24,7 +23,6 @@ mod block_test {
             Some(String::from("Bob")),
             Some(String::from("Charlie")),
             30.0,
-            String::from("signature2"),
         );
         let block2 = Block::new(
             2,
@@ -43,7 +41,6 @@ mod block_test {
             Some(String::from("Alice")),
             Some(String::from("Bob")),
             50.0,
-            String::from("signature1"),
         );
         let mut block = Block::new(1, transaction, None);
         let difficulty = 4;
