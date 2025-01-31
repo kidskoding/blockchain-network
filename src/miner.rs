@@ -6,43 +6,12 @@ use crate::blockchain::Blockchain;
 /// CPU (Central Processing Unit) - who participate and engage in cryptocurrency (crypto)
 pub struct Miner {
     /// A 64-bit floating-point balance for this `Miner`, represented in cryptos
+    /// 
+    /// - Represented as a `Some(f64)` for `Miner`s that are human
+    /// - Represented as a `None` for `Miner`s that are computing resources
     pub balance: Option<f64>,
 }
 impl Miner {
-    /// Mines a new `Block` and adds it to the `Blockchain`
-    /// 
-    /// Performs the [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp)
-    /// algorithm to mine the given `Block`
-    /// and then attempts ot add it to the given `Blockchain` if this `Miner`
-    /// has enough crypto balance to do so
-    /// 
-    /// # Parameters
-    /// - `blockchain` - A mutable reference to the `Blockchain`, 
-    ///    where the mined `Block` will be added
-    /// - `block` - The `Block` to be mined and added to the `Blockchain`
-    /// 
-    /// # Returns
-    /// - `Result<(), &str>` - Returns a result based on whether the given `Block` was successfully
-    ///    mined and added to the given `Blockchain`
-    pub fn mine_block<'a>(&mut self, blockchain: &'a mut Blockchain, mut block: Block) -> Result<(), &'a str> {
-        Self::proof_of_work(&mut block, blockchain.difficulty);
-        
-        match self.balance {
-            Some(ref mut value) => {
-                if *value >= block.transaction.amount {
-                    *value -= block.transaction.amount;
-                } else { 
-                    return Err("Insufficient crypto balance to mine the block!");
-                }
-            }
-            None => {
-                blockchain.add_block(block)?;
-            }
-        }
-        
-        Ok(())
-    }
-    
     /// An implementation of the 
     /// [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp) 
     /// algorithm
@@ -69,5 +38,62 @@ impl Miner {
             block.nonce += 1;
             block.hash = Block::calculate_hash(block);
         }
+    }
+    
+    /// Mines a new `Block` and adds it to the `Blockchain`
+    /// 
+    /// Performs the [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp)
+    /// algorithm to mine the given `Block`
+    /// and then attempts to add it to the given `Blockchain` if this `Miner`
+    /// has enough crypto balance to do so
+    /// 
+    /// # Parameters
+    /// - `blockchain` - A mutable reference to the `Blockchain`, 
+    ///    where the mined `Block` will be added
+    /// - `block` - The `Block` to be mined and added to the `Blockchain`
+    /// 
+    /// # Returns
+    /// - `Result<(), &str>` - Returns a result based on whether the given `Block` was successfully
+    ///    mined and added to the given `Blockchain`
+    pub fn mine_block<'a>(&mut self, blockchain: &'a mut Blockchain, mut block: Block) -> Result<(), &'a str> {
+        Self::proof_of_work(&mut block, blockchain.difficulty);
+        
+        match self.balance {
+            Some(ref mut value) => {
+                if *value >= block.transaction.amount {
+                    *value -= block.transaction.amount;
+                } else { 
+                    return Err("Insufficient crypto balance to mine the block!");
+                }
+            }
+            _ => {} 
+        }
+        
+        let reward = Self::calculate_block_reward(blockchain);
+        blockchain.add_block(block)?;
+        
+        if let Some(ref mut val) = self.balance {
+            *val += reward;
+        }
+        Ok(())
+    }
+    
+    /// Calculates the reward for mining a block based on the block height.
+    ///
+    /// The reward is initially 50 cryptos and is halved every 210,000 blocks.
+    /// This method follows the reward halving schedule, from many other cryptocurrencies like 
+    /// [Bitcoin](https://bitcoin.org/en/)
+    ///
+    /// # Parameters
+    /// - `block_height` - The height of the block for which the reward is being calculated.
+    ///
+    /// # Returns
+    /// - `f64` - The calculated reward for the given block height.
+    pub fn calculate_block_reward(blockchain: &Blockchain) -> f64 {
+        let initial_reward = 50.0;
+        let halving_interval = 210000;
+        let halvings = blockchain.chain.len() - 1 / halving_interval;
+        let base_reward = initial_reward / 2f64.powi(halvings as i32);
+        base_reward * blockchain.difficulty as f64
     }
 }

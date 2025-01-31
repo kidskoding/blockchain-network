@@ -32,10 +32,9 @@ impl Transaction {
     /// Creates a new `Transaction`.
     ///
     /// # Parameters
-    /// - `sender` - The sender of this `Transaction`.
-    /// - `recipient` - The recipient of this `Transaction`.
+    /// - `sender` - The sender of this `Transaction`, or `None` if there isn't any
+    /// - `recipient` - The recipient of this `Transaction`, or `None` if there isn't any
     /// - `amount` - The amount of this `Transaction`.
-    /// - `signature` - The digital signature of this `Transaction`.
     ///
     /// # Returns
     /// - `Self` - A new current instance of `Transaction` with the current timestamp.
