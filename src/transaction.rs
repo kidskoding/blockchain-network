@@ -1,8 +1,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use ring::signature::{Ed25519KeyPair, UnparsedPublicKey, ED25519};
+use serde::{Deserialize, Serialize};
 
 /// Represents a transaction for a `Block`
-#[derive(Debug)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Transaction {
     /// The sender of this `Transaction`, or `None` if there isn't one
     pub sender: Option<String>,
