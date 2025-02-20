@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod blockchain_test {
-    use std::rc::Rc;
+    use std::sync::Arc;
     use crate::block::Block;
     use crate::blockchain::Blockchain;
     use crate::transaction::Transaction;
@@ -93,8 +93,8 @@ mod blockchain_test {
 
         assert_eq!(blockchain.chain[1].previous_hash, None);
         assert_eq!(blockchain.chain[2].previous_hash,
-                   Some(Rc::from(blockchain.chain[1].hash.as_str())));
+                   Some(Arc::from(blockchain.chain[1].hash.as_str())));
         assert_eq!(blockchain.chain[3].previous_hash,
-                   Some(Rc::from(blockchain.chain[2].hash.as_str())));
+                   Some(Arc::from(blockchain.chain[2].hash.as_str())));
     }
 }

@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use std::sync::Arc;
 use ring::rand::SystemRandom;
 use ring::signature::{Ed25519KeyPair, KeyPair};
@@ -74,8 +73,8 @@ impl Blockchain {
     /// # Returns
     /// - `Option<Rc<str>>` - An optional reference count value, containing the hash of the most recent `Block`
     ///   added to this `Blockchain`
-    pub fn get_latest_block_hash(&self) -> Option<Rc<str>> {
-        self.chain.last().map(|block| Rc::from(block.hash.as_str()))
+    pub fn get_latest_block_hash(&self) -> Option<Arc<str>> {
+        self.chain.last().map(|block| Arc::from(block.hash.as_str()))
     }
     
     /// Validates the `Blockchain` by checking the hash of each block and ensuring
