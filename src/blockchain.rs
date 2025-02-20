@@ -34,6 +34,7 @@ impl Blockchain {
                 None,
                 None,
                 0.0,
+                None
             ), 
             None
         );

@@ -17,11 +17,9 @@ pub struct Miner {
     pub identifier: Arc<str> 
 }
 impl Miner {
-    pub fn new(identifier: Arc<str>, has_balance: bool) -> Self {
+    pub fn new(identifier: Arc<str>) -> Self {
         let mut temp_balance = None;
-        if(has_balance) {
-            temp_balance = Some(0.0);
-        }
+        
         Miner {
             balance: temp_balance,
             identifier
@@ -82,13 +80,14 @@ impl Miner {
                     return Err("Insufficient crypto balance to mine the block!");
                 }
             }
-        } 
+        }
         
         let reward = Self::calculate_block_reward(blockchain);
-        blockchain.add_block(block)?;
+        blockchain.add_block(block.clone())?;
         
         if let Some(ref mut balance) = self.balance {
             *balance += reward;
+            *balance += block.transaction.amount;
         }
         Ok(())
     }

@@ -39,7 +39,7 @@ impl Transaction {
     ///
     /// # Returns
     /// - `Self` - A new current instance of `Transaction` with the current timestamp.
-    pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64) -> Self {
+    pub fn new(sender: Option<String>, recipient: Option<String>, amount: f64, fee: Option<f64>) -> Self {
         Transaction {
             sender,
             recipient,
@@ -50,7 +50,7 @@ impl Transaction {
                 .as_secs(),
             signature: Vec::new(),
             transaction_id: None,
-            fee: None,
+            fee,
             metadata: None
         }
     }
