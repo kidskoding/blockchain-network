@@ -1,3 +1,4 @@
+use std::f64::NAN;
 use std::io::Error;
 use std::ops::Deref;
 use std::sync::Arc;
@@ -6,8 +7,9 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use crate::block::Block;
 use crate::blockchain::Blockchain;
+use crate::miner::Miner;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Message {
     NewBlock(Block),
     RequestChain,
@@ -29,17 +31,22 @@ pub async fn start_server(blockchain: Arc<tokio::sync::Mutex<Blockchain>>) -> Re
 }
 
 async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::Mutex<Blockchain>>) {
-    let mut buffer = [0; 1024];
-    if let Ok(_) = socket.read(&mut buffer).await {
-        if let Ok(message) = serde_json::from_slice::<Message>(&buffer) {
+    let mut buffer: [u8; 1024] = [0; 1024];
+    let mut miner = Miner::new(Arc::from("Anirudh"), true);
+    
+    if let Ok(size) = socket.read(&mut buffer).await {
+        if let Ok(message) = serde_json::from_slice::<Message>(&buffer[..size]) {
             let mut blockchain = blockchain.lock().await;
             match message {
                 Message::NewBlock(block) => {
-                    println!("Received NewBlock Message");
-                    let _ = blockchain.add_block(block);
+                    if let Ok(_) = miner.mine_block(&mut blockchain, block) {
+                        println!("New block mined and added to the blockchain. {} balance: {:?} cryptos",
+                                 String::from((&*miner.identifier).to_owned() + "'s"), miner.balance.unwrap_or(f64::NAN));
+                    } else {
+                        println!("Failed to mine the requested block.");
+                    }
                 }
                 Message::RequestChain => {
-                    println!("Received RequestChain message");
                     let chain = &blockchain.chain;
                     let response = Message::ResponseChain(chain.deref().to_vec());
                     if let Ok(response) = serde_json::to_vec(&response) {
@@ -58,6 +65,5 @@ pub async fn connect_to_peer(address: &str, message: Message) -> Result<(), Erro
     let mut socket = TcpStream::connect(address).await?;
     let message = serde_json::to_vec(&message)?;
     socket.write_all(&message).await?;
-    print!("Message sent to peer: {:?}", message);
     Ok(())
 }

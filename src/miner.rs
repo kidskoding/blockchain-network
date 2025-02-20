@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::block::Block;
 use crate::blockchain::Blockchain;
 
@@ -10,8 +11,23 @@ pub struct Miner {
     /// - Represented as a `Some(f64)` for `Miner`s that are human
     /// - Represented as a `None` for `Miner`s that are computing resources
     pub balance: Option<f64>,
+    
+    /// An atomic reference counted string literal representing
+    /// the miner's identifier, or name 
+    pub identifier: Arc<str> 
 }
 impl Miner {
+    pub fn new(identifier: Arc<str>, has_balance: bool) -> Self {
+        let mut temp_balance = None;
+        if(has_balance) {
+            temp_balance = Some(0.0);
+        }
+        Miner {
+            balance: temp_balance,
+            identifier
+        }
+    }
+    
     /// An implementation of the 
     /// [Proof of Work (PoW)](https://www.investopedia.com/terms/p/proof-work.asp) 
     /// algorithm
@@ -58,22 +74,21 @@ impl Miner {
     pub fn mine_block<'a>(&mut self, blockchain: &'a mut Blockchain, mut block: Block) -> Result<(), &'a str> {
         Self::proof_of_work(&mut block, blockchain.difficulty);
         
-        match self.balance {
-            Some(ref mut value) => {
-                if *value >= block.transaction.amount {
-                    *value -= block.transaction.amount;
-                } else { 
+        if let Some(fee) = block.transaction.fee {
+            if let Some(ref mut balance) = self.balance {
+                if *balance >= fee {
+                    *balance -= fee;
+                } else {
                     return Err("Insufficient crypto balance to mine the block!");
                 }
             }
-            _ => {} 
-        }
+        } 
         
         let reward = Self::calculate_block_reward(blockchain);
         blockchain.add_block(block)?;
         
-        if let Some(ref mut val) = self.balance {
-            *val += reward;
+        if let Some(ref mut balance) = self.balance {
+            *balance += reward;
         }
         Ok(())
     }

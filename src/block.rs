@@ -11,7 +11,7 @@ use crate::transaction::Transaction;
 /// The transaction includes several important components, including the
 /// `index`, `timestamp`, `data`, `previous_hash`, and `hash`
 #[allow(dead_code)]
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Block {
     /// The position of the `Block` in a blockchain
     pub index: u32,
