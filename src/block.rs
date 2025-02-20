@@ -1,7 +1,7 @@
-use std::sync::Arc;
 use sha2::{Digest, Sha256};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Deserialize, Serialize};
+use crate::arc_string::ArcString;
 use crate::transaction::Transaction;
 
 /// A `Block` stores a transaction, a digital operation
@@ -24,7 +24,7 @@ pub struct Block {
 
     /// A reference to the previous `Block`'s hash in a blockchain, or
     /// `None` if there isn't any
-    pub previous_hash: Option<Arc<str>>,
+    pub previous_hash: Option<ArcString>,
 
     /// The hash of this `Block` instance, which is calculated
     /// by using a cryptographic hashing algorithm, such as
@@ -52,7 +52,7 @@ impl Block {
     /// # Returns
     /// - `Self` - A newly constructed current `Block` instance that contains an
     ///   `index`, `timestamp`, `data`, `previous_hash`, and `hash`
-    pub fn new(index: u32, transaction: Transaction, previous_hash: Option<Arc<str>>) -> Self {
+    pub fn new(index: u32, transaction: Transaction, previous_hash: Option<ArcString>) -> Self {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards")

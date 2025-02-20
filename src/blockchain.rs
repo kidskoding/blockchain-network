@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use ring::rand::SystemRandom;
 use ring::signature::{Ed25519KeyPair, KeyPair};
+use crate::arc_string::ArcString;
 use crate::transaction::Transaction;
 use crate::block::Block;
 use crate::miner::Miner;
@@ -73,8 +74,8 @@ impl Blockchain {
     /// # Returns
     /// - `Option<Rc<str>>` - An optional reference count value, containing the hash of the most recent `Block`
     ///   added to this `Blockchain`
-    pub fn get_latest_block_hash(&self) -> Option<Arc<str>> {
-        self.chain.last().map(|block| Arc::from(block.hash.as_str()))
+    pub fn get_latest_block_hash(&self) -> Option<ArcString> {
+        self.chain.last().map(|block| ArcString::from(Arc::from(block.hash.clone())))
     }
     
     /// Validates the `Blockchain` by checking the hash of each block and ensuring
@@ -88,7 +89,7 @@ impl Blockchain {
             let current = &self.chain[i];
             let previous = &self.chain[i - 1];
 
-            if current.previous_hash != Some(Arc::from(previous.hash.as_str())) {
+            if current.previous_hash != Some(ArcString::from(Arc::from(previous.hash.clone()))) {
                 return Err("Blockchain is invalid! \
                     Blocks were moved and a hash mismatch has occurred")
             }
