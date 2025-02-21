@@ -7,10 +7,7 @@ use crate::blockchain::Blockchain;
 /// CPU (Central Processing Unit) - who participate and engage in cryptocurrency (crypto)
 pub struct Miner {
     /// A 64-bit floating-point balance for this `Miner`, represented in cryptos
-    /// 
-    /// - Represented as a `Some(f64)` for `Miner`s that are human
-    /// - Represented as a `None` for `Miner`s that are computing resources
-    pub balance: Option<f64>,
+    pub balance: f64,
     
     /// An atomic reference counted string literal representing
     /// the miner's identifier, or name 
@@ -18,10 +15,8 @@ pub struct Miner {
 }
 impl Miner {
     pub fn new(identifier: Arc<str>) -> Self {
-        let mut temp_balance = None;
-        
         Miner {
-            balance: temp_balance,
+            balance: 0.0,
             identifier
         }
     }
@@ -73,22 +68,19 @@ impl Miner {
         Self::proof_of_work(&mut block, blockchain.difficulty);
         
         if let Some(fee) = block.transaction.fee {
-            if let Some(ref mut balance) = self.balance {
-                if *balance >= fee {
-                    *balance -= fee;
-                } else {
-                    return Err("Insufficient crypto balance to mine the block!");
-                }
+            if self.balance >= fee {
+                self.balance -= fee;
+            } else {
+                return Err("Insufficient balance to cover the transaction fee");
             }
         }
         
         let reward = Self::calculate_block_reward(blockchain);
         blockchain.add_block(block.clone())?;
         
-        if let Some(ref mut balance) = self.balance {
-            *balance += reward;
-            *balance += block.transaction.amount;
-        }
+        self.balance += reward;
+        self.balance += block.transaction.amount;
+        
         Ok(())
     }
     

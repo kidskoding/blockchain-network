@@ -18,7 +18,8 @@ pub enum Message {
     MineBlock(Block),
     RequestChain,
     ResponseChain(Vec<Block>),
-    Connect(String)
+    Connect(String),
+    Disconnect(String),
 }
 
 pub async fn start_server(blockchain: Arc<tokio::sync::Mutex<Blockchain>>) -> Result<(), Error> {
@@ -40,7 +41,7 @@ async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::M
     
     if let Ok(size) = socket.read(&mut buffer).await {
         if let Ok(message) = serde_json::from_slice::<Message>(&buffer[..size]) {
-            let mut blockchain = blockchain.lock().await;
+            let blockchain = blockchain.lock().await;
             match message {
                 Message::MineBlock(block) => {
                     
@@ -54,6 +55,9 @@ async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::M
                 }
                 Message::Connect(name) => {
                     println!("{} connected on {} on port {}!", name, *address, *port);
+                }
+                Message::Disconnect(name) => {
+                    println!("{} disconnected from the server!", name);
                 }
                 Message::ResponseChain(chain) => {
                     // Handle received chain
