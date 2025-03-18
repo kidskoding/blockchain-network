@@ -1,5 +1,4 @@
 use std::io;
-use std::io::Error;
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
@@ -18,7 +17,7 @@ impl Client {
             miner: Miner::new(Arc::from(name)),
         }
     }
-    
+
     pub async fn run() {
         let mut name = String::new();
 
@@ -31,16 +30,16 @@ impl Client {
             eprintln!("Failed to connect: {}", e);
             return;
         }
-        
+
         loop {
             println!("Choose an available option:");
             println!("1. Mine and send blocks");
             println!("2. Exit");
-            
+
             let mut choice = String::new();
             io::stdin().read_line(&mut choice).expect("Failed to read line");
             let choice = choice.trim();
-            
+
             match choice {
                 "1" => {
                     let transaction = blockchain_network::transaction::Transaction::new(
@@ -54,7 +53,7 @@ impl Client {
 
                     if let Err(e) = client.request_block(blockchain, block).await {
                         eprintln!("Failed to mine and send block: {}", e);
-                    } 
+                    }
                 }
                 "2" =>  {
                     if let Err(e) = client.disconnect().await {
@@ -66,11 +65,11 @@ impl Client {
             }
         }
     }
-    
-    pub async fn connect(&self) -> Result<(), Error> {
+
+    pub async fn connect(&self) -> Result<(), std::io::Error> {
         let full_address = format!("{}:{}", *address, *port);
         let mut socket = TcpStream::connect(&full_address).await?;
-        let auth_message = Message::Connect(self.miner.identifier.to_string()); 
+        let auth_message = Message::Connect(self.miner.identifier.to_string());
         let message = serde_json::to_vec(&auth_message)?;
         socket.write_all(&message).await?;
 
@@ -85,8 +84,8 @@ impl Client {
         }
         Ok(())
     }
-    
-    pub async fn disconnect(&self) -> Result<(), Error> {
+
+    pub async fn disconnect(&self) -> Result<(), std::io::Error> {
         let full_address = format!("{}:{}", *address, *port);
         let mut socket = TcpStream::connect(&full_address).await?;
         let disconnect_message = Message::Disconnect(self.miner.identifier.to_string());
@@ -96,19 +95,19 @@ impl Client {
     }
 
     pub async fn request_block(&mut self, blockchain: Arc<tokio::sync::Mutex<Blockchain>>, block: Block)
-                                     -> Result<(), Error> {
+                                     -> Result<(), std::io::Error> {
 
         let mut blockchain = blockchain.lock().await;
         let miner = &mut self.miner;
-        miner.mine_block(&mut blockchain, block.clone()).map_err(|e| Error::new(io::ErrorKind::Other, e))?;
+        miner.mine_block(&mut blockchain, block.clone()).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
         println!("{}'s crypto balance: {}", miner.identifier, miner.balance);
-        
+
         let message = Message::MineBlock(block);
         let serialized_message = serde_json::to_vec(&message)?;
         let full_address = format!("{}:{}", *address, *port);
         let mut socket = TcpStream::connect(&full_address).await?;
         socket.write_all(&serialized_message).await?;
-        
+
         Ok(())
     }
 }

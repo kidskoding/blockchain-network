@@ -1,10 +1,9 @@
-use std::error::Error;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use blockchain_network::blockchain::Blockchain;
-use blockchain_network::network::{start_server};
+use blockchain_network::network::start_server;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = Runtime::new()?;
 
     rt.block_on(async {
@@ -13,9 +12,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Blockchain::new(4)
             )
         );
-        
+
         start_server(blockchain).await?;
-        
+
         Ok(())
     })
 }

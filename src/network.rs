@@ -1,4 +1,3 @@
-use std::io::Error;
 use std::ops::Deref;
 use std::sync::Arc;
 use tokio::net::{TcpListener, TcpStream};
@@ -22,7 +21,7 @@ pub enum Message {
     Disconnect(String),
 }
 
-pub async fn start_server(blockchain: Arc<tokio::sync::Mutex<Blockchain>>) -> Result<(), Error> {
+pub async fn start_server(blockchain: Arc<tokio::sync::Mutex<Blockchain>>) -> Result<(), std::io::Error> {
     let listener = TcpListener::bind(format!("{}:{}", *address, *port))
         .await?;
     println!("Blockchain server running on {}", format!("{}:{}", *address, *port));
@@ -38,13 +37,13 @@ pub async fn start_server(blockchain: Arc<tokio::sync::Mutex<Blockchain>>) -> Re
 
 async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::Mutex<Blockchain>>) {
     let mut buffer: [u8; 1024] = [0; 1024];
-    
+
     if let Ok(size) = socket.read(&mut buffer).await {
         if let Ok(message) = serde_json::from_slice::<Message>(&buffer[..size]) {
             let blockchain = blockchain.lock().await;
             match message {
                 Message::MineBlock(block) => {
-                    
+
                 }
                 Message::RequestChain => {
                     let chain = &blockchain.chain;
