@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod blockchain_test {
     use std::sync::Arc;
-    use crate::arc_string::ArcString;
-    use crate::block::Block;
-    use crate::blockchain::Blockchain;
-    use crate::transaction::Transaction;
+    use blockchain_network::arc_string::ArcString;
+    use blockchain_network::block::Block;
+    use blockchain_network::blockchain::Blockchain;
+    use blockchain_network::transaction::Transaction;
 
     fn sample_blockchain_instance() -> Blockchain {
         let mut blockchain = Blockchain::new(4);

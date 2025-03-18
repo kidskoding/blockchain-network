@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod block_test {
-    use crate::block::Block;
-    use crate::blockchain::Blockchain;
-    use crate::miner::Miner;
-    use crate::transaction::Transaction;
+    use blockchain_network::block::Block;
+    use blockchain_network::blockchain::Blockchain;
+    use blockchain_network::miner::Miner;
+    use blockchain_network::transaction::Transaction;
 
     #[test]
     fn test_create_block() {

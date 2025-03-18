@@ -100,7 +100,7 @@ impl Client {
 
         let mut blockchain = blockchain.lock().await;
         let miner = &mut self.miner;
-        miner.mine_block(&mut blockchain, block.clone()).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        miner.mine_block(&mut blockchain, block.clone()).map_err(|e| Error::new(io::ErrorKind::Other, e))?;
         println!("{}'s crypto balance: {}", miner.identifier, miner.balance);
         
         let message = Message::MineBlock(block);

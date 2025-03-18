@@ -2,7 +2,7 @@
 mod transaction_tests {
     use ring::signature::{Ed25519KeyPair, KeyPair};
     use ring::rand::SystemRandom;
-    use crate::transaction::Transaction;
+    use blockchain_network::transaction::Transaction;
 
     #[test]
     fn test_sign_and_verify_transaction() {
