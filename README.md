@@ -1,3 +1,3 @@
 # blockchain-network
 
-A blockchain network built using Rust!
+A decentralized blockchain network built using Rust!
