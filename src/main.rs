@@ -1,20 +1,37 @@
 use std::sync::Arc;
-use tokio::runtime::Runtime;
+use blockchain_network::client::Client;
+use color_eyre::eyre::{Error, Result};
+use clap::{Parser, Subcommand};
 use blockchain_network::blockchain::Blockchain;
 use blockchain_network::network::start_server;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let rt = Runtime::new()?;
+#[derive(Parser)]
+struct Args {
+    #[command(subcommand)]
+    command: Option<Command>,
+}
 
-    rt.block_on(async {
-        let blockchain = Arc::new(
-            tokio::sync::Mutex::new(
-                Blockchain::new(4)
-            )
-        );
+#[derive(Subcommand)]
+enum Command {
+    Client,
+    Server,
+}
 
-        start_server(blockchain).await?;
+#[tokio::main]
+async fn main() -> Result<()> {
+    color_eyre::install()?;
 
-        Ok(())
-    })
+    let args = Args::parse();
+    match args.command {
+        Some(Command::Server) => {
+            let blockchain = Arc::new(tokio::sync::Mutex::new(Blockchain::new(4)));
+            start_server(blockchain).await?;
+        },
+        Some(Command::Client) => {
+            Client::run().await;
+        },
+        None => return Err(Error::msg("no command provided")),
+    }
+
+    Ok(())
 }

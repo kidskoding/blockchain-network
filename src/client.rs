@@ -2,10 +2,12 @@ use std::io;
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
-use blockchain_network::block::Block;
-use blockchain_network::blockchain::Blockchain;
-use blockchain_network::miner::Miner;
-use blockchain_network::network::{address, port, Message};
+use color_eyre::eyre::Result;
+use crate::block::Block;
+use crate::blockchain::Blockchain;
+use crate::miner::Miner;
+use crate::network::{address, port, Message};
+use crate::transaction::Transaction;
 
 pub struct Client {
     miner: Miner,
@@ -42,7 +44,7 @@ impl Client {
 
             match choice {
                 "1" => {
-                    let transaction = blockchain_network::transaction::Transaction::new(
+                    let transaction = Transaction::new(
                         Some("sender".to_string()),
                         Some("receiver".to_string()),
                         10.0,
@@ -66,7 +68,7 @@ impl Client {
         }
     }
 
-    pub async fn connect(&self) -> Result<(), std::io::Error> {
+    pub async fn connect(&self) -> Result<()> {
         let full_address = format!("{}:{}", *address, *port);
         let mut socket = TcpStream::connect(&full_address).await?;
         let auth_message = Message::Connect(self.miner.identifier.to_string());
@@ -85,7 +87,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn disconnect(&self) -> Result<(), std::io::Error> {
+    pub async fn disconnect(&self) -> Result<()> {
         let full_address = format!("{}:{}", *address, *port);
         let mut socket = TcpStream::connect(&full_address).await?;
         let disconnect_message = Message::Disconnect(self.miner.identifier.to_string());
@@ -94,9 +96,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn request_block(&mut self, blockchain: Arc<tokio::sync::Mutex<Blockchain>>, block: Block)
-                                     -> Result<(), std::io::Error> {
-
+    pub async fn request_block(&mut self, blockchain: Arc<tokio::sync::Mutex<Blockchain>>, block: Block) -> Result<()> {
         let mut blockchain = blockchain.lock().await;
         let miner = &mut self.miner;
         miner.mine_block(&mut blockchain, block.clone()).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
@@ -110,9 +110,4 @@ impl Client {
 
         Ok(())
     }
-}
-
-#[tokio::main]
-async fn main() {
-    Client::run().await;
 }

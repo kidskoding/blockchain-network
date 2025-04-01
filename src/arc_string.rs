@@ -3,6 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Clone, Debug)]
 pub struct ArcString(pub Arc<String>);
+
 impl Serialize for ArcString {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use color_eyre::eyre::{Error, Result};
 use crate::block::Block;
 use crate::blockchain::Blockchain;
 
@@ -64,14 +65,14 @@ impl Miner {
     /// # Returns
     /// - `Result<(), &str>` - Returns a result based on whether the given `Block` was successfully
     ///    mined and added to the given `Blockchain`
-    pub fn mine_block<'a>(&mut self, blockchain: &'a mut Blockchain, mut block: Block) -> Result<(), &'a str> {
+    pub fn mine_block<'a>(&mut self, blockchain: &'a mut Blockchain, mut block: Block) -> Result<()> {
         Self::proof_of_work(&mut block, blockchain.difficulty);
         
         if let Some(fee) = block.transaction.fee {
             if self.balance >= fee {
                 self.balance -= fee;
             } else {
-                return Err("Insufficient balance to cover the transaction fee");
+                return Err(Error::msg("insufficient balance to cover the transaction fee"));
             }
         }
         

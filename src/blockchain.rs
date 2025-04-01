@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use color_eyre::eyre::{Error, Result};
 use ring::rand::SystemRandom;
 use ring::signature::{Ed25519KeyPair, KeyPair};
 use crate::arc_string::ArcString;
@@ -52,10 +53,10 @@ impl Blockchain {
     ///   `Blockchain` instance
     /// 
     /// # Returns
-    /// - `Result<(), &str>` - A result that contains whether the block was
-    ///    successfully added or not. If the signature verification fails, an `Err(&str)`
+    /// - `Result<()>` - A result that contains whether the block was
+    ///    successfully added or not. If the signature verification fails, an `Error`
     ///    is thrown
-    pub fn add_block(&mut self, mut new_block: Block) -> Result<(), &str> {
+    pub fn add_block(&mut self, mut new_block: Block) -> Result<()> {
         let rng = SystemRandom::new();
         let key_pair = Ed25519KeyPair::generate_pkcs8(&rng).unwrap();
         let key_pair = Ed25519KeyPair::from_pkcs8(key_pair.as_ref()).unwrap();
@@ -66,14 +67,14 @@ impl Blockchain {
             self.chain.push(new_block);
             Ok(())
         } else {
-            Err("Could not verify the signature of the block's transaction!")
+            Err(Error::msg("Could not verify the signature of the block's transaction!"))
         }
     }
     
     /// Gets the hash value for the most recent `Block` added to this `Blockchain`
     /// 
     /// # Returns
-    /// - `Option<Rc<str>>` - An optional reference count value, containing the hash of the most recent `Block`
+    /// - `Option<ArcString>` - An optional reference count value, containing the hash of the most recent `Block`
     ///   added to this `Blockchain`
     pub fn get_latest_block_hash(&self) -> Option<ArcString> {
         self.chain.last().map(|block| ArcString::from(Arc::from(block.hash.clone())))
@@ -83,16 +84,16 @@ impl Blockchain {
     /// that the hashes of the consecutive `Block`s match
     ///
     /// # Returns
-    /// - `Result<bool, &str>` - A result based on whether the hashes of all consecutive
-    ///   `Block`s match that of the current `Block`. `true` if so, an `Err(&str)` otherwise
-     pub fn is_valid(&self) -> Result<bool, &str> { 
+    /// - `Result<bool>` - A result based on whether the hashes of all consecutive
+    ///   `Block`s match that of the current `Block`. `true` if so, an `Err` otherwise
+     pub fn is_valid(&self) -> Result<bool> { 
         for i in 1..self.chain.len() {
             let current = &self.chain[i];
             let previous = &self.chain[i - 1];
 
             if current.previous_hash != Some(ArcString::from(Arc::from(previous.hash.clone()))) {
-                return Err("Blockchain is invalid! \
-                    Blocks were moved and a hash mismatch has occurred")
+                return Err(Error::msg("Blockchain is invalid! \
+                    Blocks were moved and a hash mismatch has occurred"))
             }
         }
         Ok(true)
