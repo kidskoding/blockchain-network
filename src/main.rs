@@ -1,8 +1,8 @@
 use std::sync::Arc;
-use blockchain_network::client::Client;
 use color_eyre::eyre::{Error, Result};
 use clap::{Parser, Subcommand};
 use blockchain_network::blockchain::Blockchain;
+use blockchain_network::client::Client;
 use blockchain_network::network::start_server;
 
 #[derive(Parser)]
