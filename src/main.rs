@@ -19,8 +19,6 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // test comment for gh profile
-
     color_eyre::install()?;
 
     let args = Args::parse();
