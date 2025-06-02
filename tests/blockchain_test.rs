@@ -31,7 +31,8 @@ mod blockchain_test {
     #[test]
     fn test_is_valid_blockchain() {
         let blockchain = sample_blockchain_instance();
-        assert_eq!(blockchain.is_valid(), Ok(true));
+        assert!(blockchain.is_valid().is_ok());
+        assert!(blockchain.is_valid().unwrap());
     }
 
     #[test]

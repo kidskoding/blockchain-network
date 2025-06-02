@@ -34,7 +34,7 @@ mod block_test {
         );
         blockchain.add_block(block2).unwrap();
 
-        assert_eq!(blockchain.is_valid(), Ok(true));
+        assert!(blockchain.is_valid().is_ok());
         assert_eq!(blockchain.chain.len(), 3);
     }
 
