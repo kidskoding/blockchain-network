@@ -40,13 +40,22 @@ async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::M
 
     if let Ok(size) = socket.read(&mut buffer).await {
         if let Ok(message) = serde_json::from_slice::<Message>(&buffer[..size]) {
-            let blockchain = blockchain.lock().await;
             match message {
                 Message::MineBlock(block) => {
-
+                    let mut chain = blockchain.lock().await;
+                    match chain.add_block(block) {
+                        Ok(()) => {
+                            let _ = socket.write_all(br#"{"ok":true}"#).await;
+                        }
+                        Err(err) => {
+                            let msg = format!(r#"{{"ok":false,"error":{:?}}}"#, err.to_string());
+                            let _ = socket.write_all(msg.as_bytes()).await;
+                        }
+                    }
                 }
                 Message::RequestChain => {
-                    let chain = &blockchain.chain;
+                    let chain_guard = blockchain.lock().await;
+                    let chain = &chain_guard.chain;
                     let response = Message::ResponseChain(chain.deref().to_vec());
                     if let Ok(response) = serde_json::to_vec(&response) {
                         let _ = socket.write_all(&response).await;
@@ -58,10 +67,11 @@ async fn handle_connection(mut socket: TcpStream, blockchain: Arc<tokio::sync::M
                 Message::Disconnect(name) => {
                     println!("{} disconnected from the server!", name);
                 }
-                Message::ResponseChain(chain) => {
+                Message::ResponseChain(_chain) => {
                     // Handle received chain
                 }
             }
         }
     }
 }
+
