@@ -86,14 +86,22 @@ impl Blockchain {
     /// # Returns
     /// - `Result<bool>` - A result based on whether the hashes of all consecutive
     ///   `Block`s match that of the current `Block`. `true` if so, an `Err` otherwise
-     pub fn is_valid(&self) -> Result<bool> { 
+     pub fn is_valid(&self) -> Result<bool> {
         for i in 1..self.chain.len() {
             let current = &self.chain[i];
             let previous = &self.chain[i - 1];
 
+            // Recompute hash so mutated transaction data cannot keep a stale hash.
+            if current.hash != Block::calculate_hash(current) {
+                return Err(Error::msg(
+                    "Blockchain is invalid! Block hash does not match block contents",
+                ));
+            }
+
             if current.previous_hash != Some(ArcString::from(Arc::from(previous.hash.clone()))) {
-                return Err(Error::msg("Blockchain is invalid! \
-                    Blocks were moved and a hash mismatch has occurred"))
+                return Err(Error::msg(
+                    "Blockchain is invalid! Blocks were moved and a hash mismatch has occurred",
+                ));
             }
         }
         Ok(true)
